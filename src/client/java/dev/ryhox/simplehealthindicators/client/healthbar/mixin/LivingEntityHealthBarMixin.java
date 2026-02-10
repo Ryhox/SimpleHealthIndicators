@@ -263,7 +263,7 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
 
         int maxHearts = MathHelper.ceil(max / 2f);
         int fullHearts = MathHelper.floor(hp / 2f);
-        boolean half = (hp % 2f) >= 1f;
+        boolean half = (hp % 2f) >= 1f || (hp > 0f && fullHearts == 0);
 
         int absHearts = MathHelper.ceil(absorption / 2f);
         int absFull = MathHelper.floor(absorption / 2f);
