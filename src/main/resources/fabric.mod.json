@@ -3,7 +3,7 @@
   "id": "simplehealthindicators",
   "version": "${version}",
   "name": "SimpleHealthIndicators",
-  "description": "",
+  "description": "Shows clean, lightweight health indicators for players and mobs.",
   "authors": [],
   "contact": {},
   "license": "MIT",
