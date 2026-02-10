@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "simplehealthindicators",
+  "version": "${version}",
+  "name": "SimpleHealthIndicators",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/simplehealthindicators/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "dev.ryhox.simplehealthindicators.client.SimplehealthindicatorsDataGenerator"
+    ],
+    "client": [
+      "dev.ryhox.simplehealthindicators.client.SimplehealthindicatorsClient"
+    ],
+    "modmenu": [
+      "dev.ryhox.simplehealthindicators.client.ModMenuCompat"
+    ],
+    "main": [
+      "dev.ryhox.simplehealthindicators.Simplehealthindicators"
+    ]
+  },
+  "mixins": [
+    "simplehealthindicators.mixins.json",
+    {
+      "config": "simplehealthindicators.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": ">=1.21.9"
+  }
+}

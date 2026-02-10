@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.ryhox.simplehealthindicators.client.healthbar.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "LivingEntityHealthBarMixin",
+    "LivingEntityRenderStateMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
