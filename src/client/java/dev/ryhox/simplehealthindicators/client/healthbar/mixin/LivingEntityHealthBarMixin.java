@@ -271,14 +271,23 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
 
         int yHealth = -10;
         int rowStride = HEART_SIZE + 2;
-        int yAbsBase = yHealth + rowStride;
 
+// Deine Welt-/Billboard-Koordinate ist bei dir anscheinend so:
+// y++ = "hoch", y-- = "runter"  (weil es aktuell nach unten stapelt)
         int maxRows = MathHelper.ceil(maxHearts / (float) HEARTS_PER_ROW);
+
+// Für Absorption: links ausrichten am linken Rand der "vollen" Health-Row-Breite (max 10 Herzen)
+        int baseLeftX = -((HEARTS_PER_ROW * HEART_SPACING) / 2); // fixer linker Rand
+
+
+// --- HEALTH (stack UP) ---
         for (int row = 0; row < maxRows; row++) {
             int rowStartIndex = row * HEARTS_PER_ROW;
             int rowHearts = Math.min(HEARTS_PER_ROW, maxHearts - rowStartIndex);
-            int startX = -(rowHearts * HEART_SPACING) / 2;
-            int yRow = yHealth - row * rowStride;
+
+            int startX = baseLeftX;
+
+            int yRow = yHealth + row * rowStride; // <-- stack nach oben
 
             shi$submitHeartsBatch(queue, matrices, startX, yRow, rowHearts, containerTex, HEART_Z_CONTAINER, false);
 
@@ -300,13 +309,15 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
             Identifier absFullTex = hardcore ? HEART_FULL_ABS_HC_TEX : HEART_FULL_ABS_TEX;
             Identifier absHalfTex = hardcore ? HEART_HALF_ABS_HC_TEX : HEART_HALF_ABS_TEX;
 
-            int absRowWidth = Math.min(HEARTS_PER_ROW, maxHearts);
-            int absStartX = -(absRowWidth * HEART_SPACING) / 2;
+            int yAbsBase = yHealth + maxRows * rowStride;
+
             int absRows = MathHelper.ceil(absHearts / (float) HEARTS_PER_ROW);
             for (int row = 0; row < absRows; row++) {
                 int rowStartIndex = row * HEARTS_PER_ROW;
                 int rowHearts = Math.min(HEARTS_PER_ROW, absHearts - rowStartIndex);
-                int startX = absStartX;
+
+                int startX = baseLeftX;
+
                 int yRow = yAbsBase + row * rowStride;
 
                 shi$submitHeartsBatch(queue, matrices, startX, yRow, rowHearts, containerTex, HEART_Z_CONTAINER, false);
@@ -325,6 +336,7 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
                 }
             }
         }
+
     }
 
     @Unique
