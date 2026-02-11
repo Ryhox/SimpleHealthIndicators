@@ -3,10 +3,7 @@ package dev.ryhox.simplehealthindicators.client.healthbar.mixin;
 import dev.ryhox.simplehealthindicators.client.healthbar.HealthBarRenderStateAccess;
 import dev.ryhox.simplehealthindicators.client.healthbar.HealthBarState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
@@ -406,8 +403,10 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
     @Unique
     private static RenderLayer shi$layerFor(Identifier tex, boolean foreground) {
         if (foreground) {
-            return RenderLayer.getEntityCutoutNoCullZOffset(tex);
+            return RenderLayers.entityCutoutNoCullZOffset(tex);
         }
-        return RenderLayer.getEntityCutoutNoCull(tex);
+        return RenderLayers.entityCutoutNoCull(tex);
     }
+
+
 }
