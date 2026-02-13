@@ -9,6 +9,7 @@ public final class SimplehealthindicatorsClient implements ClientModInitializer 
     @Override
     public void onInitializeClient() {
         HealthBarState.MODE = HealthBarConfig.loadMode();
+        HealthBarState.EXTRA_LINES = HealthBarConfig.loadExtraLines();
         HealthBarCommand.init();
     }
 }

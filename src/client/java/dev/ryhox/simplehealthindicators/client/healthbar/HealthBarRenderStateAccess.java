@@ -7,6 +7,8 @@ public interface HealthBarRenderStateAccess {
 
     boolean shi$isPoisoned();
     boolean shi$isWithered();
+    boolean shi$hasLabel();
+    boolean shi$hasScoreboardDisplay();
 
     void shi$setHealth(float v);
     void shi$setMaxHealth(float v);
@@ -14,4 +16,6 @@ public interface HealthBarRenderStateAccess {
 
     void shi$setPoisoned(boolean v);
     void shi$setWithered(boolean v);
+    void shi$setHasLabel(boolean v);
+    void shi$setHasScoreboardDisplay(boolean v);
 }

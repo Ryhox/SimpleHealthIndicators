@@ -1,6 +1,7 @@
 package dev.ryhox.simplehealthindicators.client.healthbar;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.text.Text;
 
@@ -14,6 +15,21 @@ public final class HealthBarCommand {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(
                     literal("healthbar")
+                            .then(literal("offset")
+                                    .then(argument("lines", IntegerArgumentType.integer(0, 5))
+                                            .executes(ctx -> {
+                                                int lines = IntegerArgumentType.getInteger(ctx, "lines");
+                                                HealthBarState.EXTRA_LINES = lines;
+                                                HealthBarConfig.saveExtraLines(lines);
+                                                ctx.getSource().sendFeedback(Text.literal("Healthbar extra lines: " + lines));
+                                                return 1;
+                                            })
+                                    )
+                                    .executes(ctx -> {
+                                        ctx.getSource().sendFeedback(Text.literal("Healthbar extra lines: " + HealthBarState.EXTRA_LINES));
+                                        return 1;
+                                    })
+                            )
                             .then(argument("type", StringArgumentType.word())
                                     .suggests((ctx, b) -> {
                                         b.suggest("bar");

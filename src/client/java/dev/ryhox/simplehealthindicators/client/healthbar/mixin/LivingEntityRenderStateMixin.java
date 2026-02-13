@@ -14,6 +14,8 @@ public abstract class LivingEntityRenderStateMixin implements HealthBarRenderSta
 
     @Unique private boolean shi$poisoned;
     @Unique private boolean shi$withered;
+    @Unique private boolean shi$hasLabel;
+    @Unique private boolean shi$hasScoreboardDisplay;
 
     @Override public float shi$getHealth() { return shi$health; }
     @Override public float shi$getMaxHealth() { return shi$maxHealth; }
@@ -21,6 +23,8 @@ public abstract class LivingEntityRenderStateMixin implements HealthBarRenderSta
 
     @Override public boolean shi$isPoisoned() { return shi$poisoned; }
     @Override public boolean shi$isWithered() { return shi$withered; }
+    @Override public boolean shi$hasLabel() { return shi$hasLabel; }
+    @Override public boolean shi$hasScoreboardDisplay() { return shi$hasScoreboardDisplay; }
 
     @Override public void shi$setHealth(float v) { shi$health = v; }
     @Override public void shi$setMaxHealth(float v) { shi$maxHealth = v; }
@@ -28,4 +32,6 @@ public abstract class LivingEntityRenderStateMixin implements HealthBarRenderSta
 
     @Override public void shi$setPoisoned(boolean v) { shi$poisoned = v; }
     @Override public void shi$setWithered(boolean v) { shi$withered = v; }
+    @Override public void shi$setHasLabel(boolean v) { shi$hasLabel = v; }
+    @Override public void shi$setHasScoreboardDisplay(boolean v) { shi$hasScoreboardDisplay = v; }
 }

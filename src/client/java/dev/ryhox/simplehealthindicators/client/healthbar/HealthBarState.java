@@ -18,4 +18,5 @@ public final class HealthBarState {
     }
 
     public static volatile Mode MODE = Mode.HEARTS;
+    public static volatile int EXTRA_LINES = 0;
 }

@@ -8,16 +8,24 @@ import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
+import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
 import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.scoreboard.ReadableScoreboardScore;
+import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.ScoreboardDisplaySlot;
+import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,8 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
 
     // ---------- CONFIG ----------
-    @Unique private static final double BASE_Y = 0.55;
-    @Unique private static final double NAME_EXTRA_Y = 0.25;
+    @Unique private static final double BASE_Y = 0.75;
     @Unique private static final float NAMETAG_SCALE = 0.025f;
 
     // --------- HEART TEXTURES ---------
@@ -95,6 +102,9 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
 
     @Unique private static final int MAX_LIGHT = LightmapTextureManager.MAX_LIGHT_COORDINATE;
 
+    @Shadow
+    protected abstract boolean hasLabel(T entity, double squaredDistanceToCamera);
+
 
     @Inject(
             method = "updateRenderState(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;F)V",
@@ -110,6 +120,25 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
 
         acc.shi$setPoisoned(entity.hasStatusEffect(StatusEffects.POISON));
         acc.shi$setWithered(entity.hasStatusEffect(StatusEffects.WITHER));
+
+        boolean hasLabel = false;
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc != null && mc.getEntityRenderDispatcher() != null) {
+            double d = mc.getEntityRenderDispatcher().getSquaredDistanceToCamera(entity);
+            hasLabel = this.hasLabel(entity, d);
+        }
+        acc.shi$setHasLabel(hasLabel);
+
+        boolean hasScoreboardDisplay = false;
+        if (entity instanceof PlayerLikeEntity player && entity.getEntityWorld() != null) {
+            Scoreboard scoreboard = entity.getEntityWorld().getScoreboard();
+            ScoreboardObjective belowName = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.BELOW_NAME);
+            if (belowName != null) {
+                ReadableScoreboardScore score = scoreboard.getScore(player, belowName);
+                hasScoreboardDisplay = score != null;
+            }
+        }
+        acc.shi$setHasScoreboardDisplay(hasScoreboardDisplay);
     }
 
     @Inject(method = "render", at = @At("HEAD"))
@@ -135,7 +164,11 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
         matrices.push();
 
         double y = state.height + BASE_Y;
-        if (state.displayName != null) y += NAME_EXTRA_Y;
+        int extraLines = shi$getExtraNameplateLines(mc, state, acc);
+        if (extraLines > 0) {
+            float lineStepWorld = (mc.textRenderer.fontHeight + 1) * NAMETAG_SCALE; // +1 matches vanilla-ish spacing
+            y += lineStepWorld * extraLines;
+        }
 
         matrices.translate(0.0, y, 0.0);
         matrices.multiply(cameraState.orientation);
@@ -177,7 +210,7 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
             heartColor = 0xFFAA0000;
         }
         String numbers = String.format(java.util.Locale.ROOT, "%.2f/%.2f", shownHp, shownMax);
-        Text text = Text.literal(numbers).append(Text.literal("♥").setStyle(Style.EMPTY.withColor(heartColor)));
+        Text text = Text.literal(numbers).append(Text.literal("\u2665").setStyle(Style.EMPTY.withColor(heartColor)));
         float x = -mc.textRenderer.getWidth(text) / 2.0f;
         float y = -mc.textRenderer.fontHeight / 2.0f;
 
@@ -408,5 +441,54 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
         return RenderLayers.entityCutoutNoCull(tex);
     }
 
+    @Unique
+    private static int shi$getExtraNameplateLines(
+            MinecraftClient mc,
+            LivingEntityRenderState state,
+            HealthBarRenderStateAccess acc
+    ) {
+        int lines = 0;
+
+        if (state.displayName != null) {
+            int rendered = mc.textRenderer.wrapLines(state.displayName, 150).size();
+            lines += Math.max(0, rendered - 1);
+        }
+
+        // BELOW_NAME line (vanilla scoreboard objective)
+        if (acc.shi$hasScoreboardDisplay() || shi$hasServerBelowNameScore(mc, state)) lines += 1;
+
+        return lines;
+    }
+
+
+    @Unique
+    private static int shi$countLines(Text text) {
+        String s = text.getString();
+        if (s.isEmpty()) return 1;
+
+        int lines = 1;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '\n') lines++;
+        }
+        return lines;
+    }
+
+    @Unique
+    private static boolean shi$hasServerBelowNameScore(MinecraftClient mc, LivingEntityRenderState state) {
+        if (mc.world == null) return false;
+        if (!(state instanceof PlayerEntityRenderState playerState)) return false;
+
+        Scoreboard scoreboard = mc.world.getScoreboard();
+        ScoreboardObjective belowName = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.BELOW_NAME);
+        if (belowName == null) return false;
+
+        Entity entity = mc.world.getEntityById(playerState.id);
+        if (!(entity instanceof PlayerLikeEntity player)) return false;
+
+        ReadableScoreboardScore score = scoreboard.getScore(player, belowName);
+        return score != null;
+    }
+
 
 }
+
