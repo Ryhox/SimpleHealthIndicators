@@ -175,6 +175,11 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
         }
 
         matrices.translate(0.0, y, 0.0);
+        // Strip entity body rotation so hearts always face the camera (true billboard)
+        var pose = matrices.last().pose();
+        float tx = pose.m30(), ty = pose.m31(), tz = pose.m32();
+        pose.identity().m30(tx).m31(ty).m32(tz);
+        matrices.last().normal().identity();
         matrices.mulPose(cameraState.orientation);
         matrices.scale(NAMETAG_SCALE, NAMETAG_SCALE, NAMETAG_SCALE);
 
@@ -336,14 +341,17 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
             Identifier absFullTex = hardcore ? HEART_FULL_ABS_HC_TEX : HEART_FULL_ABS_TEX;
             Identifier absHalfTex = hardcore ? HEART_HALF_ABS_HC_TEX : HEART_HALF_ABS_TEX;
 
+            int absRows = Mth.ceil(absHearts / (float) HEARTS_PER_ROW);
             int yAbsBase = yHealth + maxRows * rowStride;
 
-            int absRows = Mth.ceil(absHearts / (float) HEARTS_PER_ROW);
+            int firstRowHealthHearts = Math.min(HEARTS_PER_ROW, maxHearts);
+            int healthStartX = -(firstRowHealthHearts * HEART_SPACING / 2);
+
             for (int row = 0; row < absRows; row++) {
                 int rowStartIndex = row * HEARTS_PER_ROW;
                 int rowHearts = Math.min(HEARTS_PER_ROW, absHearts - rowStartIndex);
 
-                int startX = -(rowHearts * HEART_SPACING / 2);
+                int startX = healthStartX;
 
                 int yRow = yAbsBase + row * rowStride;
 
