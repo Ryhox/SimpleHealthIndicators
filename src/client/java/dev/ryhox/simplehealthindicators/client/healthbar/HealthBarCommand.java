@@ -3,10 +3,10 @@ package dev.ryhox.simplehealthindicators.client.healthbar;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
 
 public final class HealthBarCommand {
     private HealthBarCommand() {}
@@ -21,12 +21,12 @@ public final class HealthBarCommand {
                                                 int lines = IntegerArgumentType.getInteger(ctx, "lines");
                                                 HealthBarState.EXTRA_LINES = lines;
                                                 HealthBarConfig.saveExtraLines(lines);
-                                                ctx.getSource().sendFeedback(Text.literal("Healthbar extra lines: " + lines));
+                                                ctx.getSource().sendFeedback(Component.literal("Healthbar extra lines: " + lines));
                                                 return 1;
                                             })
                                     )
                                     .executes(ctx -> {
-                                        ctx.getSource().sendFeedback(Text.literal("Healthbar extra lines: " + HealthBarState.EXTRA_LINES));
+                                        ctx.getSource().sendFeedback(Component.literal("Healthbar extra lines: " + HealthBarState.EXTRA_LINES));
                                         return 1;
                                     })
                             )
@@ -41,7 +41,7 @@ public final class HealthBarCommand {
                                         String type = StringArgumentType.getString(ctx, "type");
                                         HealthBarState.MODE = HealthBarState.Mode.parse(type);
                                         HealthBarConfig.saveMode(HealthBarState.MODE);
-                                        ctx.getSource().sendFeedback(Text.literal("Healthbar: " + HealthBarState.MODE.name().toLowerCase()));
+                                        ctx.getSource().sendFeedback(Component.literal("Healthbar: " + HealthBarState.MODE.name().toLowerCase()));
                                         return 1;
                                     })
                             )

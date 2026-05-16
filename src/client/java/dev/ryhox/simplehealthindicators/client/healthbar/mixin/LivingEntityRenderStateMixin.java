@@ -1,7 +1,7 @@
 package dev.ryhox.simplehealthindicators.client.healthbar.mixin;
 
 import dev.ryhox.simplehealthindicators.client.healthbar.HealthBarRenderStateAccess;
-import net.minecraft.client.render.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

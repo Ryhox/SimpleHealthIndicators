@@ -1,10 +1,10 @@
 package dev.ryhox.simplehealthindicators.client.healthbar;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public final class HealthBarConfigScreen extends Screen {
     private static final int MODE_W = 110;
@@ -16,12 +16,12 @@ public final class HealthBarConfigScreen extends Screen {
     private final Screen parent;
     private HealthBarState.Mode mode;
 
-    private ButtonWidget barButton;
-    private ButtonWidget heartsButton;
-    private ButtonWidget numericButton;
+    private Button barButton;
+    private Button heartsButton;
+    private Button numericButton;
 
     public HealthBarConfigScreen(Screen parent) {
-        super(Text.literal("Simple Health Indicators"));
+        super(Component.literal("Simple Health Indicators"));
         this.parent = parent;
         this.mode = HealthBarState.MODE;
     }
@@ -35,42 +35,42 @@ public final class HealthBarConfigScreen extends Screen {
         int startX = cx - totalW / 2;
         int buttonsY = cy - 20;
 
-        barButton = addDrawableChild(ButtonWidget.builder(Text.empty(),
-                        b -> setMode(HealthBarState.Mode.BAR))
-                .dimensions(startX, buttonsY, MODE_W, MODE_H)
+        barButton = addRenderableWidget(Button.builder(Component.empty(),
+                        _ -> setMode(HealthBarState.Mode.BAR))
+                .bounds(startX, buttonsY, MODE_W, MODE_H)
                 .build());
 
-        heartsButton = addDrawableChild(ButtonWidget.builder(Text.empty(),
-                        b -> setMode(HealthBarState.Mode.HEARTS))
-                .dimensions(startX + MODE_W + GAP, buttonsY, MODE_W, MODE_H)
+        heartsButton = addRenderableWidget(Button.builder(Component.empty(),
+                        _ -> setMode(HealthBarState.Mode.HEARTS))
+                .bounds(startX + MODE_W + GAP, buttonsY, MODE_W, MODE_H)
                 .build());
 
-        numericButton = addDrawableChild(ButtonWidget.builder(Text.empty(),
-                        b -> setMode(HealthBarState.Mode.NUMERIC))
-                .dimensions(startX + (MODE_W + GAP) * 2, buttonsY, MODE_W, MODE_H)
+        numericButton = addRenderableWidget(Button.builder(Component.empty(),
+                        _ -> setMode(HealthBarState.Mode.NUMERIC))
+                .bounds(startX + (MODE_W + GAP) * 2, buttonsY, MODE_W, MODE_H)
                 .build());
 
-        addDrawableChild(ButtonWidget.builder(
-                        Text.literal("Reset").formatted(Formatting.RED),
-                        b -> setMode(HealthBarState.Mode.BAR))
-                .dimensions(cx - ACTION_W / 2, buttonsY + MODE_H + 10, ACTION_W, MODE_H)
+        addRenderableWidget(Button.builder(
+                        Component.literal("Reset").withStyle(ChatFormatting.RED),
+                        _ -> setMode(HealthBarState.Mode.BAR))
+                .bounds(cx - ACTION_W / 2, buttonsY + MODE_H + 10, ACTION_W, MODE_H)
                 .build());
 
-        addDrawableChild(ButtonWidget.builder(Text.literal("Done"), b -> close())
-                .dimensions(cx - ACTION_W / 2, this.height - 28, ACTION_W, MODE_H)
+        addRenderableWidget(Button.builder(Component.literal("Done"), _ -> onClose())
+                .bounds(cx - ACTION_W / 2, this.height - 28, ACTION_W, MODE_H)
                 .build());
 
         refreshLabels();
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 
     @Override
-    public void close() {
-        if (client != null) client.setScreen(parent);
+    public void onClose() {
+        minecraft.setScreen(parent);
     }
 
     private void setMode(HealthBarState.Mode newMode) {
@@ -86,9 +86,9 @@ public final class HealthBarConfigScreen extends Screen {
         numericButton.setMessage(label(HealthBarState.Mode.NUMERIC, "Numeric"));
     }
 
-    private Text label(HealthBarState.Mode check, String label) {
+    private Component label(HealthBarState.Mode check, String label) {
         return mode == check
-                ? Text.literal(label).formatted(Formatting.GREEN)
-                : Text.literal(label);
+                ? Component.literal(label).withStyle(ChatFormatting.GREEN)
+                : Component.literal(label);
     }
 }

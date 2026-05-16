@@ -3,7 +3,7 @@ package dev.ryhox.simplehealthindicators.client;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.ryhox.simplehealthindicators.client.healthbar.HealthBarConfigScreen;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 
 public final class ModMenuCompat implements ModMenuApi {
     @Override
