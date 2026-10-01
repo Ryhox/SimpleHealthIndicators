@@ -156,19 +156,21 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
         if (state == null) return;
+        if (mc.gui.hud.isHidden() || state.isInvisibleToPlayer) return;
 
         HealthBarRenderStateAccess acc = (HealthBarRenderStateAccess) state;
         float max = acc.shi$getMaxHealth();
         if (max <= 0f) return;
 
         float hp = Mth.clamp(acc.shi$getHealth(), 0f, max);
+        if (hp <= 0f) return;
         float absorption = Math.max(0f, acc.shi$getAbsorption());
         float pct = Mth.clamp((hp + absorption) / max, 0f, 1f);
 
         matrices.pushPose();
 
         double y = state.boundingBoxHeight + BASE_Y;
-        int extraLines = shi$getExtraNameplateLines(mc, state, acc);
+        int extraLines = shi$getExtraNameplateLines(mc, state, acc) + HealthBarState.EXTRA_LINES;
         if (extraLines > 0) {
             float lineStepWorld = (mc.font.lineHeight + 1) * NAMETAG_SCALE;
             y += lineStepWorld * extraLines;
@@ -180,7 +182,7 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
         float tx = pose.m30(), ty = pose.m31(), tz = pose.m32();
         pose.identity().m30(tx).m31(ty).m32(tz);
         matrices.last().normal().identity();
-        matrices.mulPose(cameraState.orientation);
+        matrices.rotate(cameraState.orientation);
         matrices.scale(NAMETAG_SCALE, NAMETAG_SCALE, NAMETAG_SCALE);
 
         matrices.translate(0.0, 0.0, HUD_Z_PUSH);
@@ -224,7 +226,7 @@ public abstract class LivingEntityHealthBarMixin<T extends LivingEntity, S exten
         float y = -mc.font.lineHeight / 2.0f;
 
         matrices.pushPose();
-        matrices.mulPose(Axis.XP.rotationDegrees(180));
+        matrices.rotateDegrees(Axis.XP, 180);
 
         FormattedCharSequence ordered = Language.getInstance().getVisualOrder(text);
         queue.submitText(

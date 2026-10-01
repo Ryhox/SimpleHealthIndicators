@@ -54,4 +54,30 @@ You can change the health indicator mode in multiple ways:
 - **In-game command**
 
 ```text
-/healthbar <type>
+/healthbar <bar|hearts|numeric>
+/healthbar offset <0..5>
+```
+
+## Compatibility
+
+- Minecraft **26.3**
+- Java **25+**
+- Fabric Loader **0.19.5+**
+- Fabric API **0.161.0+26.3** tested
+- Mod Menu **21.0.0** optional
+
+## Building and testing
+
+```sh
+./gradlew build
+./gradlew runClientGameTest
+```
+
+The client game test launches Minecraft 26.3 and captures bars, hearts, numeric
+values, player poison/wither/absorption effects, transparency, and the
+configuration screen. Screenshots are saved under
+`build/run/clientGameTest/screenshots/`; test code is excluded from release jars.
+Use `-PcompatModJar=/absolute/path/to/other-mod.jar` for a combined mod test.
+
+Health and status displays use information supplied by the server. Vanilla does
+not synchronize detailed effects and absorption for every remote mob/player.

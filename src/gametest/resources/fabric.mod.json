@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "simplehealthindicators-test",
+  "version": "1.0",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "dev.ryhox.simplehealthindicators.test.HealthIndicatorsGameTest"
+    ]
+  }
+}
